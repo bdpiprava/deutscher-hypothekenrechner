@@ -10,10 +10,8 @@ body {
 
 /* Container */
 .calculator-container {
-    max-width: 900px; /* Slightly wider max-width */
-    margin: 20px auto;
-    background: #ffffff; /* White background */
-    padding: 20px; /* Default padding */
+    background: #ffffff;
+    padding: 20px 30px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
 }
@@ -29,7 +27,7 @@ h1, h2 {
 
 h1 {
     text-align: center;
-    margin-bottom: 1.5rem; /* More space after main title */
+    margin-bottom: 2rem; /* More space after main title before columns */
     font-size: 1.75rem; /* Slightly smaller H1 */
 }
 
@@ -37,49 +35,68 @@ h2 {
     font-size: 1.5rem; /* Slightly smaller H2 */
 }
 
-/* Sections */
-.input-section, .summary-section, .schedule-section {
-    margin-bottom: 2rem; /* More space between sections */
+/* --- NEW Two-Column Layout --- */
+.main-layout {
+    display: flex;
+    flex-wrap: wrap; /* Allow columns to stack on smaller screens */
+    gap: 30px; /* Space between the left (input) and right (output) columns */
 }
 
-/* Input Groups - Flexbox for alignment */
+.input-section {
+    flex: 1 1 25%;
+    min-width: 300px;
+    margin-bottom: 0;
+}
+
+.output-section {
+    flex: 1 1 70%; /* Grow, Shrink, Basis (~55% width) */
+    min-width: 350px; /* Prevent output column from getting too narrow */
+    display: flex; /* Use flex to arrange summary/schedule */
+    flex-direction: column; /* Stack summary above schedule */
+    gap: 2rem; /* Space between summary and schedule sections */
+}
+
+/* Remove bottom margin from sections within the output column */
+.output-section .summary-section,
+.output-section .schedule-section {
+    margin-bottom: 0;
+}
+
 .input-group {
     display: flex;
-    flex-wrap: wrap; /* Allow wrapping on very small screens if needed */
-    align-items: center; /* Vertically align label and input */
-    margin-bottom: 0.75rem; /* Space below each group */
-    padding-bottom: 0.75rem; /* Space before border */
-    border-bottom: 1px dotted #e9ecef; /* Very light dotted border */
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dotted #e9ecef;
+    flex-direction: column;
 }
 
 .input-group:last-child {
     border-bottom: none;
-    margin-bottom: 0; /* No margin for the last group in a section */
+    margin-bottom: 0;
 }
 
 .input-group label {
-    flex: 1 1 200px; /* Grow, shrink, base width ~200px */
-    margin-right: 1rem; /* Space between label and input */
-    font-weight: 500; /* Slightly less bold */
-    padding-bottom: 5px; /* Add padding for wrap alignment */
+    margin-right: 1rem;
+    font-weight: 500;
+    padding-bottom: 5px;
 }
 
 .input-group input[type="number"] {
-    flex: 1 1 180px; /* Grow, shrink, base width ~180px */
-    padding: 0.5rem 0.75rem; /* Standard padding */
-    border: 1px solid #ced4da; /* Standard border */
-    border-radius: 0.25rem; /* Standard radius */
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
     text-align: right;
-    font-size: 1rem; /* Ensure consistent font size */
-    max-width: 250px; /* Prevent input from becoming excessively wide */
+    font-size: 1rem;
 }
 
-/* Summary Section - Flexbox for alignment */
+/* Summary Section - Styles remain largely the same */
 .summary-section p {
     margin: 0.5rem 0;
     display: flex;
     justify-content: space-between;
-    flex-wrap: wrap; /* Allow wrapping */
+    flex-wrap: wrap;
     padding-bottom: 0.5rem;
     border-bottom: 1px dotted #e9ecef;
 }
@@ -88,23 +105,22 @@ h2 {
     border-bottom: none;
 }
 
-
 .summary-section p span,
 .summary-section p strong span {
-    font-weight: 600; /* Bolder values */
+    font-weight: 600;
     text-align: right;
-    flex-shrink: 0; /* Prevent value from shrinking too much */
-    margin-left: 1rem; /* Ensure space when wrapping */
-    padding-top: 3px; /* Align better when wrapped */
+    flex-shrink: 0;
+    margin-left: 1rem;
+    padding-top: 3px;
 }
 
-/* Fee Details List */
+/* Fee Details List - Styles remain largely the same */
 .fee-details {
     list-style: none;
-    padding-left: 1.5rem; /* Indent details */
+    padding-left: 1.5rem;
     margin: 0.5rem 0 1rem 0;
     font-size: 0.9em;
-    color: #495057; /* Slightly muted text */
+    color: #495057;
 }
 
 .fee-details li {
@@ -121,73 +137,70 @@ h2 {
     flex-shrink: 0;
 }
 
-/* Payoff Summary Text */
+/* Payoff Summary Text - Styles remain largely the same */
 #payoffSummary {
     margin-top: 1.5rem;
-    font-style: normal; /* Remove italic */
+    font-style: normal;
     font-weight: 500;
     color: #0d6efd;
     text-align: center;
     border-top: 1px solid #dee2e6;
     padding-top: 1rem;
-    line-height: 1.4; /* Improve readability */
+    line-height: 1.4;
 }
 
-/* Schedule Toggle */
+/* Schedule Toggle - Styles remain largely the same */
 .schedule-toggle {
     margin-bottom: 1rem;
     text-align: center;
-    display: flex; /* Use flex for better alignment */
+    display: flex;
     justify-content: center;
-    gap: 1rem; /* Space between radio buttons */
+    gap: 1rem;
 }
 
 .schedule-toggle label {
     cursor: pointer;
-    padding: 0.375rem 0.75rem; /* Add padding like buttons */
-    border: 1px solid transparent; /* Placeholder for border */
+    padding: 0.375rem 0.75rem;
+    border: 1px solid transparent;
     border-radius: 0.25rem;
     transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
 .schedule-toggle input[type="radio"] {
     margin-right: 0.3rem;
-    vertical-align: middle; /* Align radio button better */
+    vertical-align: middle;
 }
 
-/* Style checked radio label slightly */
-.schedule-toggle input[type="radio"]:checked + span { /* Assuming span wrapper if needed, or style label directly */
-    /* Example: Add a subtle background or border */
-    /* background-color: #e7f1ff; */
-    /* border-color: #cfe2ff; */
+.schedule-toggle input[type="radio"]:checked + span { /* If you wrap text in span */
     font-weight: 500;
 }
 
 
-/* Table Container - Crucial for responsiveness */
+/* Table Container - Styles remain largely the same */
 .table-container {
-    max-height: 450px; /* Slightly taller */
-    overflow-y: auto; /* Vertical scroll for height */
-    overflow-x: auto; /* Horizontal scroll for width */
+    /* Adjust max-height if needed, or remove it */
+    /* max-height: 450px; */
+    overflow-y: auto;
+    overflow-x: auto;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
-    margin-top: 1rem; /* Space above table */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    margin-top: 1rem;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Table */
+/* Table - Styles remain largely the same */
 table {
-    width: 100%; /* Table takes full width *of its content* */
-    min-width: 600px; /* Force minimum width to encourage horizontal scroll */
+    width: 100%;
+    min-width: 550px; /* Adjust min-width as needed for this layout */
     border-collapse: collapse;
     margin-top: 0;
 }
 
 th, td {
     border: 1px solid #dee2e6;
-    padding: 0.75rem; /* More padding */
+    padding: 0.75rem;
     text-align: right;
-    white-space: nowrap; /* Prevent text wrapping in cells */
+    white-space: nowrap;
 }
 
 th {
@@ -195,42 +208,53 @@ th {
     position: sticky;
     top: 0;
     z-index: 1;
-    font-weight: 600; /* Bolder header */
+    font-weight: 600;
 }
 
-/* First column (Period) alignment */
 td:first-child, th:first-child {
     text-align: center;
-    white-space: normal; /* Allow period label (e.g., Year/Month) to wrap if needed */
-    min-width: 60px; /* Give period column some base width */
+    white-space: normal;
+    min-width: 60px;
 }
 
-/* Zebra Striping */
 tbody tr:nth-child(even) {
     background-color: #f8f9fa;
 }
 
-/* Hover effect */
 tbody tr:hover {
     background-color: #e9ecef;
 }
 
 /* --- Responsive Adjustments --- */
 
-/* Medium Screens (Tablets, smaller desktops) */
+/* Breakpoint for stacking columns (e.g., Large Tablets / Small Desktops) */
+@media (max-width: 991px) {
+    /* Adjusted breakpoint */
+    .main-layout {
+        gap: 2rem;
+    }
+
+    .input-section,
+    .output-section {
+        /* Reset flex properties to allow full width */
+        flex: 1 1 100%;
+        min-width: unset; /* Remove min-width when stacked */
+    }
+
+    .calculator-container {
+        padding: 20px; /* Adjust padding */
+    }
+}
+
+
+/* Medium Screens (Tablets) - Adjustments within stacked layout if needed */
 @media (max-width: 768px) {
     .calculator-container {
         padding: 15px;
     }
 
     .input-group label {
-        flex-basis: 150px; /* Allow label slightly less space */
         margin-right: 0.75rem;
-    }
-
-    .input-group input[type="number"] {
-        flex-basis: 150px; /* Allow input slightly less space */
-        max-width: none; /* Remove max-width constraint */
     }
 
     h1 {
@@ -245,22 +269,17 @@ tbody tr:hover {
         padding: 0.6rem;
     }
 
-    /* Reduce table padding */
     table {
         min-width: 500px;
     }
-
-    /* Reduce min-width slightly */
 }
 
 
-/* Small Screens (Mobiles) */
+/* Small Screens (Mobiles) - Inherits stacking, further adjustments */
 @media (max-width: 600px) {
     .calculator-container {
-        margin: 10px; /* Reduce margin */
-        padding: 10px; /* Further reduce padding */
-        box-shadow: none; /* Optional: remove shadow on small screens */
-        border: 1px solid #dee2e6; /* Add border instead of shadow */
+        padding: 10px;
+        box-shadow: none;
     }
 
     h1 {
@@ -275,31 +294,30 @@ tbody tr:hover {
 
     /* Stack Input Groups */
     .input-group {
-        flex-direction: column; /* Stack label and input */
-        align-items: stretch; /* Stretch items full width */
-        border-bottom: 1px solid #dee2e6; /* Slightly stronger border */
+        flex-direction: column;
+        align-items: stretch;
+        border-bottom: 1px solid #dee2e6;
         padding-bottom: 0.5rem;
         margin-bottom: 0.5rem;
     }
 
     .input-group label {
         margin-right: 0;
-        margin-bottom: 0.25rem; /* Space between stacked label and input */
-        flex-basis: auto; /* Reset flex-basis */
-        text-align: left; /* Align label left */
+        margin-bottom: 0.25rem;
+        flex-basis: auto;
+        text-align: left;
     }
 
     .input-group input[type="number"] {
-        width: 100%; /* Make input full width */
-        box-sizing: border-box; /* Include padding/border in width */
-        flex-basis: auto; /* Reset flex-basis */
-        max-width: none; /* Ensure no max-width */
+        width: 100%;
+        box-sizing: border-box;
+        flex-basis: auto;
     }
 
     /* Stack Summary Lines */
     .summary-section p, .fee-details li {
-        flex-direction: column; /* Stack description and value */
-        align-items: flex-start; /* Align items left */
+        flex-direction: column;
+        align-items: flex-start;
         border-bottom: 1px dashed #eee;
         padding-bottom: 0.5rem;
         margin-bottom: 0.5rem;
@@ -312,27 +330,26 @@ tbody tr:hover {
     .summary-section p span,
     .summary-section p strong span,
     .fee-details li span {
-        text-align: left; /* Align value left */
-        margin-left: 0; /* Remove left margin */
-        margin-top: 0.2rem; /* Add small top margin */
-        font-size: 1em; /* Ensure value isn't smaller */
-        font-weight: 600; /* Keep value bold */
+        text-align: left;
+        margin-left: 0;
+        margin-top: 0.2rem;
+        font-size: 1em;
+        font-weight: 600;
     }
 
     /* Adjust table */
     th, td {
-        padding: 0.5rem 0.4rem; /* Further reduce padding */
-        font-size: 0.85em; /* Smaller font in table */
+        padding: 0.5rem 0.4rem;
+        font-size: 0.85em;
     }
 
     table {
         min-width: 450px;
     }
 
-    /* Further reduce min-width */
     /* Make table container take more width */
     .table-container {
-        margin-left: -10px; /* Extend slightly into padding */
+        margin-left: -10px;
         margin-right: -10px;
         border-left: none;
         border-right: none;
