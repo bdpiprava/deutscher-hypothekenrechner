@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const notaryFeeInput = document.getElementById('notaryFee');
     const interestRateInput = document.getElementById('interestRate');
     const unscheduledPaymentInput = document.getElementById('unscheduledPayment');
-    // Get the new input element
     const unscheduledPaymentYearsInput = document.getElementById('unscheduledPaymentYears');
 
     const summaryPurchasePriceSpan = document.getElementById('summaryPurchasePrice');
@@ -25,21 +24,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const scheduleViewRadios = document.querySelectorAll('input[name="scheduleView"]');
     const periodHeader = document.getElementById('periodHeader');
 
-    // --- Global Variables for Schedule Data ---
+    // --- Pagination Elements ---
+    const prevPageButton = document.getElementById('prevPage');
+    const nextPageButton = document.getElementById('nextPage');
+    const pageInfoSpan = document.getElementById('pageInfo');
+    const paginationControlsDiv = document.querySelector('.pagination-controls'); // To hide/show
+
+    // --- Global Variables ---
     let monthlyScheduleData = [];
     let yearlyScheduleData = [];
 
+    // --- Pagination State ---
+    const ITEMS_PER_PAGE = 12; // Show 12 entries per page (1 year for monthly)
+    let currentPage = 1;
+
     // --- Helper Functions ---
     const formatCurrency = (value) => {
-        // Add error handling for non-numeric values if necessary
         if (typeof value !== 'number' || isNaN(value)) {
-            return 'N/A'; // Or some other placeholder
+            return 'N/A';
         }
-        return value.toLocaleString('de-DE', {style: 'currency', currency: 'EUR'});
+        return value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
     };
 
     const getNumericValue = (element, defaultValue = 0) => {
-        // Ensure element exists before trying to read its value
         if (!element) return defaultValue;
         const value = parseFloat(element.value);
         return isNaN(value) ? defaultValue : value;
@@ -47,8 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Core Calculation Logic ---
     const calculateMortgage = () => {
+        // ... (rest of the calculation logic remains the same up to point 8) ...
         // 1. Get Input Values
-        const purchasePrice = getNumericValue(purchasePriceInput, 0); // Use 0 as default for calculations
+        const purchasePrice = getNumericValue(purchasePriceInput, 0);
         const downPayment = getNumericValue(downPaymentInput, 0);
         const monthlyPayment = getNumericValue(repaymentAmountInput, 0);
         const agentFeePercent = getNumericValue(agentFeeInput, 0);
@@ -56,8 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const notaryFeePercent = getNumericValue(notaryFeeInput, 0);
         const interestRatePercent = getNumericValue(interestRateInput, 0);
         const unscheduledYearlyPayment = getNumericValue(unscheduledPaymentInput, 0);
-        // Read the new input value
-        const unscheduledPaymentYears = getNumericValue(unscheduledPaymentYearsInput, 0); // 0 means unlimited
+        const unscheduledPaymentYears = getNumericValue(unscheduledPaymentYearsInput, 0);
 
         // 2. Calculate Fees
         const agentFee = purchasePrice * (agentFeePercent / 100);
@@ -68,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Calculate Summary Values
         const totalCost = purchasePrice + totalFees;
         let initialLoanAmount = totalCost - downPayment;
-        if (initialLoanAmount < 0) initialLoanAmount = 0; // Cannot have negative loan
+        if (initialLoanAmount < 0) initialLoanAmount = 0;
 
         // 4. Update Summary Display
         summaryPurchasePriceSpan.textContent = formatCurrency(purchasePrice);
@@ -85,132 +92,99 @@ document.addEventListener('DOMContentLoaded', () => {
         yearlyScheduleData = [];
         let remainingBalance = initialLoanAmount;
         let totalInterestPaid = 0;
-        let month = 0; // Use 0-based index internally for easier modulo? No, 1-based is used here.
+        let month = 0;
         const monthlyInterestRate = (interestRatePercent / 100) / 12;
 
-        // Clear previous results and errors
         payoffSummaryP.textContent = 'Berechne...';
-        scheduleBody.innerHTML = ''; // Clear table early
+        scheduleBody.innerHTML = '';
 
         if (initialLoanAmount <= 0) {
             payoffSummaryP.textContent = "Kein Darlehen erforderlich (Eigenkapital deckt Gesamtkosten).";
-            displaySchedule(); // Display empty schedule
+            currentPage = 1; // Reset page
+            displaySchedule(); // Display empty schedule & update pagination
             return;
         }
 
         if (monthlyPayment <= 0 || interestRatePercent < 0) {
             payoffSummaryP.textContent = "Bitte gltige Werte für Rate (> 0) und Zinssatz (>= 0) eingeben.";
-            displaySchedule(); // Clear schedule table
-            return; // Stop calculation if inputs are invalid for amortization
+            currentPage = 1; // Reset page
+            displaySchedule(); // Clear schedule table & update pagination
+            return;
         }
 
-        // Estimate minimum payment required to cover initial interest
         const minPayment = remainingBalance * monthlyInterestRate;
-        // Allow calculation even if payment doesn't cover interest initially,
-        // but warn if it *never* will (i.e., no unscheduled payment either)
         if (monthlyPayment <= minPayment && unscheduledYearlyPayment <= 0) {
             payoffSummaryP.textContent = `Warnung: Die monatliche Rate (${formatCurrency(monthlyPayment)}) reicht nicht aus, um die anfänglichen Zinsen (${formatCurrency(minPayment)}) zu decken. Ohne Sondertilgungen wird das Darlehen nie zurückgezahlt.`;
-            // Don't return here, let the loop run to show increasing debt if needed, but limit iterations.
         }
 
-
-        let safetyBreak = 0; // Prevent potential infinite loops
-        const MAX_MONTHS = 720; // 60 years limit - increased slightly
+        let safetyBreak = 0;
+        const MAX_MONTHS = 720;
 
         while (remainingBalance > 0 && safetyBreak < MAX_MONTHS) {
             month++;
             safetyBreak++;
 
             let interestForMonth = remainingBalance * monthlyInterestRate;
-            // Ensure interest is not negative (can happen with negative rates, though unlikely)
             if (interestForMonth < 0) interestForMonth = 0;
 
             let principalForMonth = monthlyPayment - interestForMonth;
             let paymentThisMonth = monthlyPayment;
 
-            // If interest exceeds payment, principal becomes negative (debt increases)
-            // We allow this, but cap the principal reduction at 0 minimum.
             if (principalForMonth < 0) {
                 principalForMonth = 0;
             }
 
-            // Adjust for last payment - pay exactly the remaining balance + interest for that balance
             if (remainingBalance + interestForMonth <= monthlyPayment) {
-                principalForMonth = remainingBalance;
-                paymentThisMonth = principalForMonth + interestForMonth;
-                interestForMonth = remainingBalance * monthlyInterestRate; // Recalculate interest on the exact remaining balance
+                interestForMonth = remainingBalance * monthlyInterestRate;
                 if (interestForMonth < 0) interestForMonth = 0;
-                principalForMonth = remainingBalance; // Principal is exactly what's left
+                principalForMonth = remainingBalance;
                 paymentThisMonth = principalForMonth + interestForMonth;
             }
 
-
-            // Ensure values are non-negative before storing/subtracting
             paymentThisMonth = Math.max(0, paymentThisMonth);
             interestForMonth = Math.max(0, interestForMonth);
             principalForMonth = Math.max(0, principalForMonth);
 
-
+            const balanceBeforePayment = remainingBalance; // Store balance before deduction
             remainingBalance -= principalForMonth;
             totalInterestPaid += interestForMonth;
 
-            // Handle potential floating point inaccuracies near zero
             if (remainingBalance < 0.005) {
                 remainingBalance = 0;
             }
 
-            // Store monthly data BEFORE potential unscheduled payment
             monthlyScheduleData.push({
                 period: month,
-                totalPayment: paymentThisMonth, // Regular payment
+                totalPayment: paymentThisMonth,
                 interestPaid: interestForMonth,
                 principalPaid: principalForMonth,
-                unscheduled: 0, // Placeholder for unscheduled payment this month
-                balance: remainingBalance // Balance *after* regular payment but *before* potential unscheduled
+                unscheduled: 0,
+                balance: remainingBalance
             });
 
-            // --- Apply Unscheduled Yearly Payment Logic ---
-            // Check if it's the end of a year (month 12, 24, etc.)
             if (unscheduledYearlyPayment > 0 && month % 12 === 0 && remainingBalance > 0) {
-                // Calculate the current year (1-based)
                 const currentYear = Math.ceil(month / 12);
+                let applyUnscheduledThisYear = (unscheduledPaymentYears <= 0) || (currentYear <= unscheduledPaymentYears);
 
-                // Check if unscheduled payments are limited by years and if we are within that limit
-                let applyUnscheduledThisYear = false;
-                if (unscheduledPaymentYears > 0) { // Is there a limit set?
-                    if (currentYear <= unscheduledPaymentYears) { // Are we within the limited years?
-                        applyUnscheduledThisYear = true;
-                    }
-                } else { // No limit set (unscheduledPaymentYears is 0 or less), apply always
-                    applyUnscheduledThisYear = true;
-                }
-
-                // Apply the payment if conditions met
                 if (applyUnscheduledThisYear) {
                     const actualUnscheduledPayment = Math.min(unscheduledYearlyPayment, remainingBalance);
                     remainingBalance -= actualUnscheduledPayment;
-
-                    // Handle potential floating point inaccuracies near zero after unscheduled payment
                     if (remainingBalance < 0.005) {
                         remainingBalance = 0;
                     }
-
-                    // Add unscheduled payment info to the last month's record of the year
                     const lastMonthIndex = monthlyScheduleData.length - 1;
                     monthlyScheduleData[lastMonthIndex].unscheduled = actualUnscheduledPayment;
-                    // Update the balance in the record to reflect the state *after* the unscheduled payment
                     monthlyScheduleData[lastMonthIndex].balance = remainingBalance;
                 }
             }
 
-            // Break loop if balance is paid off
             if (remainingBalance <= 0) {
                 break;
             }
         } // End while loop
 
         // 6. Generate Yearly Summary from Monthly Data
-        yearlyScheduleData = []; // Clear previous yearly data
+        yearlyScheduleData = [];
         let yearlyInterest = 0;
         let yearlyPrincipal = 0;
         let yearlyTotalPayment = 0;
@@ -219,22 +193,18 @@ document.addEventListener('DOMContentLoaded', () => {
         monthlyScheduleData.forEach((m, index) => {
             yearlyInterest += m.interestPaid;
             yearlyPrincipal += m.principalPaid;
-            yearlyTotalPayment += m.totalPayment; // Accumulate regular payments
-            yearlyUnscheduled += m.unscheduled; // Accumulate unscheduled payments
+            yearlyTotalPayment += m.totalPayment;
+            yearlyUnscheduled += m.unscheduled;
 
-            // If it's the last month of a year OR the very last month of the loan
             if ((index + 1) % 12 === 0 || index === monthlyScheduleData.length - 1) {
                 const year = Math.ceil((index + 1) / 12);
                 yearlyScheduleData.push({
                     period: year,
-                    // Total payment for the year = sum of monthly payments + sum of unscheduled payments in that year
                     totalPayment: yearlyTotalPayment + yearlyUnscheduled,
                     interestPaid: yearlyInterest,
-                    // Total principal reduction for the year = sum of monthly principal + sum of unscheduled
                     principalPaid: yearlyPrincipal + yearlyUnscheduled,
-                    balance: m.balance // Balance at the end of the period (last month of the year or final month)
+                    balance: m.balance
                 });
-                // Reset yearly accumulators for the next year
                 yearlyInterest = 0;
                 yearlyPrincipal = 0;
                 yearlyTotalPayment = 0;
@@ -242,9 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-
         // 7. Update Payoff Summary
-        if (remainingBalance <= 0) { // Loan paid off
+        if (remainingBalance <= 0) {
             const totalMonths = month;
             const years = Math.floor(totalMonths / 12);
             const remainingMonths = totalMonths % 12;
@@ -260,54 +229,75 @@ document.addEventListener('DOMContentLoaded', () => {
             payoffText += ` abbezahlt.`;
             payoffText += ` Gezahlte Gesamtzinsen: ${formatCurrency(totalInterestPaid)}.`;
             payoffSummaryP.textContent = payoffText;
-        } else if (safetyBreak >= MAX_MONTHS) { // Hit calculation limit
+        } else if (safetyBreak >= MAX_MONTHS) {
             payoffSummaryP.textContent = `Berechnungslimit erreicht (${Math.floor(MAX_MONTHS / 12)} Jahre). Das Darlehen konnte mit den aktuellen Eingaben nicht vollständig zurückgezahlt werden. Restschuld: ${formatCurrency(remainingBalance)}`;
         } else {
-            // This case should ideally not be reached if the initial checks are correct,
-            // but as a fallback:
             payoffSummaryP.textContent = `Berechnung unvollständig. Restschuld: ${formatCurrency(remainingBalance)}`;
         }
 
-
-        // 8. Display Initial Schedule (respects current view selection)
+        // 8. Reset pagination and Display Initial Schedule
+        currentPage = 1; // Reset to first page after calculation
         displaySchedule();
     };
 
-    // --- Display Schedule Logic ---
+    // --- Display Schedule Logic (with Pagination) ---
     const displaySchedule = () => {
         const selectedView = document.querySelector('input[name="scheduleView"]:checked').value;
-        // Use the globally calculated data
-        const scheduleData = selectedView === 'yearly' ? yearlyScheduleData : monthlyScheduleData;
+        const fullScheduleData = selectedView === 'yearly' ? yearlyScheduleData : monthlyScheduleData;
 
         scheduleBody.innerHTML = ''; // Clear previous rows
 
-        if (!scheduleData || scheduleData.length === 0) {
-            // Display a message if there's no data (e.g., invalid input, loan paid instantly)
-            const row = scheduleBody.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 5; // Span across all columns
-            cell.textContent = 'Keine Tilgungsdaten verfügbar oder Darlehen nicht erforderlich.';
-            cell.style.textAlign = 'center';
-            return;
+        // Calculate pagination parameters
+        const totalItems = fullScheduleData.length;
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+        // Adjust currentPage if it's out of bounds (e.g., after filtering/recalculation)
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
         }
 
+        // Calculate the slice of data for the current page
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const paginatedData = fullScheduleData.slice(startIndex, endIndex);
 
+        // Update Period Header
         periodHeader.textContent = selectedView === 'yearly' ? 'Jahr' : 'Monat';
 
-        scheduleData.forEach(item => {
+        // Render the current page's data
+        if (paginatedData.length === 0 && totalItems === 0) {
+            // Display a message if there's absolutely no data
             const row = scheduleBody.insertRow();
-            row.insertCell().textContent = item.period;
-            // Yearly view: item.totalPayment already includes regular + unscheduled for the year.
-            // Monthly view: item.totalPayment is the regular payment (except maybe last).
-            // We could add a separate column for unscheduled if needed for monthly, but
-            // current yearly calculation sums it into principalPaid and totalPayment.
-            row.insertCell().textContent = formatCurrency(item.totalPayment);
-            row.insertCell().textContent = formatCurrency(item.interestPaid);
-            // Yearly view: item.principalPaid includes regular principal + unscheduled.
-            // Monthly view: item.principalPaid is regular principal. item.unscheduled holds the extra payment for that month (if any).
-            row.insertCell().textContent = formatCurrency(item.principalPaid + (selectedView === 'monthly' ? item.unscheduled : 0)); // Show total principal reduction
-            row.insertCell().textContent = formatCurrency(item.balance);
-        });
+            const cell = row.insertCell();
+            cell.colSpan = 5;
+            cell.textContent = 'Keine Tilgungsdaten verfügbar oder Darlehen nicht erforderlich.';
+            cell.style.textAlign = 'center';
+        } else {
+            paginatedData.forEach(item => {
+                const row = scheduleBody.insertRow();
+                row.insertCell().textContent = item.period;
+                row.insertCell().textContent = formatCurrency(item.totalPayment);
+                row.insertCell().textContent = formatCurrency(item.interestPaid);
+                // Show total principal reduction (regular + unscheduled for the period)
+                const principalShown = item.principalPaid + (selectedView === 'monthly' ? item.unscheduled : 0);
+                row.insertCell().textContent = formatCurrency(principalShown);
+                row.insertCell().textContent = formatCurrency(item.balance);
+            });
+        }
+
+        // Update Pagination Controls
+        if (totalPages <= 1) {
+            // Hide controls if only one page or no pages
+            paginationControlsDiv.style.display = 'none';
+        } else {
+            paginationControlsDiv.style.display = 'flex'; // Ensure it's visible
+            pageInfoSpan.textContent = `Seite ${currentPage} von ${totalPages}`;
+            prevPageButton.disabled = currentPage === 1;
+            nextPageButton.disabled = currentPage === totalPages;
+        }
     };
 
     // --- Event Listeners ---
@@ -315,17 +305,39 @@ document.addEventListener('DOMContentLoaded', () => {
         purchasePriceInput, downPaymentInput, repaymentAmountInput,
         agentFeeInput, realEstateTaxInput, notaryFeeInput,
         interestRateInput, unscheduledPaymentInput,
-        unscheduledPaymentYearsInput // Add listener for the new input
+        unscheduledPaymentYearsInput
     ];
-    // Use 'input' for immediate feedback, 'change' might be slightly less resource intensive
     inputs.forEach(input => {
-        if (input) { // Check if element exists before adding listener
+        if (input) {
             input.addEventListener('input', calculateMortgage);
         }
     });
 
+    // Listener for view toggle (Monthly/Yearly)
+    scheduleViewRadios.forEach(radio => radio.addEventListener('change', () => {
+        currentPage = 1; // Reset to page 1 when changing view
+        displaySchedule();
+    }));
 
-    scheduleViewRadios.forEach(radio => radio.addEventListener('change', displaySchedule));
+    // Listeners for Pagination Buttons
+    prevPageButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displaySchedule();
+        }
+    });
+
+    nextPageButton.addEventListener('click', () => {
+        // Need total pages calculation here or access to it
+        const selectedView = document.querySelector('input[name="scheduleView"]:checked').value;
+        const fullScheduleData = selectedView === 'yearly' ? yearlyScheduleData : monthlyScheduleData;
+        const totalPages = Math.ceil(fullScheduleData.length / ITEMS_PER_PAGE);
+
+        if (currentPage < totalPages) {
+            currentPage++;
+            displaySchedule();
+        }
+    });
 
     // --- Initial Calculation on Load ---
     calculateMortgage();

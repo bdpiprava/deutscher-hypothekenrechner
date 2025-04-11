@@ -1,75 +1,72 @@
-/* Reset and Base Styles */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* System font stack */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     line-height: 1.6;
     margin: 0;
-    padding: 0; /* Remove default body padding */
-    background-color: #f8f9fa; /* Lighter grey */
-    color: #212529; /* Darker text */
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #212529;
 }
 
-/* Container */
 .calculator-container {
     background: #ffffff;
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Headings */
+
 h1, h2 {
-    color: #0d6efd; /* Bootstrap primary blue */
-    margin-top: 0; /* Remove top margin for headings following others */
-    margin-bottom: 1rem; /* Consistent bottom margin */
-    padding-bottom: 0.5rem; /* Space before border */
-    border-bottom: 1px solid #dee2e6; /* Lighter border */
+    color: #0d6efd;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 2rem; /* More space after main title before columns */
-    font-size: 1.75rem; /* Slightly smaller H1 */
+    margin-bottom: 0;
+    font-size: 1.75rem;
 }
 
 h2 {
-    font-size: 1.5rem; /* Slightly smaller H2 */
+    font-size: 1.5rem;
 }
 
-/* --- NEW Two-Column Layout --- */
 .main-layout {
     display: flex;
-    flex-wrap: wrap; /* Allow columns to stack on smaller screens */
-    gap: 30px; /* Space between the left (input) and right (output) columns */
+    flex-wrap: wrap;
 }
 
 .input-section {
-    flex: 1 1 25%;
+    background: #F5F6FA;
+    flex: 1 1 20%;
     min-width: 300px;
     margin-bottom: 0;
+    padding: 20px;
 }
 
 .output-section {
-    flex: 1 1 70%; /* Grow, Shrink, Basis (~55% width) */
-    min-width: 350px; /* Prevent output column from getting too narrow */
-    display: flex; /* Use flex to arrange summary/schedule */
-    flex-direction: column; /* Stack summary above schedule */
-    gap: 2rem; /* Space between summary and schedule sections */
+    padding: 20px;
+    flex: 1 1 70%;
+    min-width: 350px;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Remove bottom margin from sections within the output column */
+
 .output-section .summary-section,
 .output-section .schedule-section {
     margin-bottom: 0;
 }
 
+
 .input-group {
+
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.75rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px dotted #e9ecef;
-    flex-direction: column;
 }
 
 .input-group:last-child {
@@ -78,7 +75,7 @@ h2 {
 }
 
 .input-group label {
-    margin-right: 1rem;
+
     font-weight: 500;
     padding-bottom: 5px;
 }
@@ -89,9 +86,12 @@ h2 {
     border-radius: 0.25rem;
     text-align: right;
     font-size: 1rem;
+
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Summary Section - Styles remain largely the same */
+
 .summary-section p {
     margin: 0.5rem 0;
     display: flex;
@@ -114,7 +114,7 @@ h2 {
     padding-top: 3px;
 }
 
-/* Fee Details List - Styles remain largely the same */
+
 .fee-details {
     list-style: none;
     padding-left: 1.5rem;
@@ -137,25 +137,29 @@ h2 {
     flex-shrink: 0;
 }
 
-/* Payoff Summary Text - Styles remain largely the same */
+
 #payoffSummary {
-    margin-top: 1.5rem;
-    font-style: normal;
+    font-style: italic;
     font-weight: 500;
     color: #0d6efd;
     text-align: center;
-    border-top: 1px solid #dee2e6;
-    padding-top: 1rem;
     line-height: 1.4;
+    border-bottom: 1px solid #dee2e6;
 }
 
-/* Schedule Toggle - Styles remain largely the same */
+
 .schedule-toggle {
     margin-bottom: 1rem;
     text-align: center;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.schedule-toggle h2 {
+    margin: 0;
+    border: none;
 }
 
 .schedule-toggle label {
@@ -171,27 +175,29 @@ h2 {
     vertical-align: middle;
 }
 
-.schedule-toggle input[type="radio"]:checked + span { /* If you wrap text in span */
+
+.schedule-toggle input[type="radio"]:checked + span {
+
+
     font-weight: 500;
 }
 
 
-/* Table Container - Styles remain largely the same */
 .table-container {
-    /* Adjust max-height if needed, or remove it */
-    /* max-height: 450px; */
+
+
     overflow-y: auto;
     overflow-x: auto;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
-    margin-top: 1rem;
+
     -webkit-overflow-scrolling: touch;
 }
 
-/* Table - Styles remain largely the same */
+
 table {
     width: 100%;
-    min-width: 550px; /* Adjust min-width as needed for this layout */
+    min-width: 550px;
     border-collapse: collapse;
     margin-top: 0;
 }
@@ -225,37 +231,68 @@ tbody tr:hover {
     background-color: #e9ecef;
 }
 
-/* --- Responsive Adjustments --- */
 
-/* Breakpoint for stacking columns (e.g., Large Tablets / Small Desktops) */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.pagination-controls button {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    color: #0d6efd;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #e9ecef;
+}
+
+.pagination-controls button:disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.pagination-controls span {
+    font-size: 0.9em;
+    color: #495057;
+}
+
+
 @media (max-width: 991px) {
-    /* Adjusted breakpoint */
+
     .main-layout {
+
+        flex-direction: column;
         gap: 2rem;
     }
 
     .input-section,
     .output-section {
-        /* Reset flex properties to allow full width */
+
         flex: 1 1 100%;
-        min-width: unset; /* Remove min-width when stacked */
+        min-width: unset;
     }
 
     .calculator-container {
-        padding: 20px; /* Adjust padding */
+        padding: 20px;
     }
 }
 
 
-/* Medium Screens (Tablets) - Adjustments within stacked layout if needed */
 @media (max-width: 768px) {
     .calculator-container {
         padding: 15px;
     }
 
-    .input-group label {
-        margin-right: 0.75rem;
-    }
 
     h1 {
         font-size: 1.6rem;
@@ -272,14 +309,24 @@ tbody tr:hover {
     table {
         min-width: 500px;
     }
+
+    .pagination-controls {
+        padding: 0.75rem 0;
+        gap: 0.5rem;
+    }
+
+    .pagination-controls button {
+        padding: 0.3rem 0.6rem;
+    }
 }
 
 
-/* Small Screens (Mobiles) - Inherits stacking, further adjustments */
 @media (max-width: 600px) {
     .calculator-container {
+        margin: 10px;
         padding: 10px;
         box-shadow: none;
+        border: 1px solid #dee2e6;
     }
 
     h1 {
@@ -292,29 +339,13 @@ tbody tr:hover {
         margin-bottom: 0.75rem;
     }
 
-    /* Stack Input Groups */
-    .input-group {
-        flex-direction: column;
-        align-items: stretch;
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
 
     .input-group label {
-        margin-right: 0;
-        margin-bottom: 0.25rem;
-        flex-basis: auto;
+
         text-align: left;
     }
 
-    .input-group input[type="number"] {
-        width: 100%;
-        box-sizing: border-box;
-        flex-basis: auto;
-    }
 
-    /* Stack Summary Lines */
     .summary-section p, .fee-details li {
         flex-direction: column;
         align-items: flex-start;
@@ -337,7 +368,7 @@ tbody tr:hover {
         font-weight: 600;
     }
 
-    /* Adjust table */
+
     th, td {
         padding: 0.5rem 0.4rem;
         font-size: 0.85em;
@@ -347,7 +378,7 @@ tbody tr:hover {
         min-width: 450px;
     }
 
-    /* Make table container take more width */
+
     .table-container {
         margin-left: -10px;
         margin-right: -10px;
@@ -355,4 +386,34 @@ tbody tr:hover {
         border-right: none;
         border-radius: 0;
     }
+
+
+    .pagination-controls {
+        padding: 0.5rem 0;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .pagination-controls button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9em;
+    }
+
+    .pagination-controls span {
+        font-size: 0.85em;
+        text-align: center;
+        width: 100%;
+        order: 1;
+        margin-top: 0.25rem;
+    }
+
+    .pagination-controls button#prevPage {
+        order: 0;
+    }
+
+    .pagination-controls button#nextPage {
+        order: 2;
+    }
+
 }

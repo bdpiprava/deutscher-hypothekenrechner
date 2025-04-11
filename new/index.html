@@ -73,14 +73,17 @@
             </div>
 
             <div class="schedule-section">
-                <h2>Tilgungsplan</h2>
                 <div class="schedule-toggle">
-                    <label>
-                        <input type="radio" name="scheduleView" value="yearly" checked> Jährlich
-                    </label>
-                    <label>
-                        <input type="radio" name="scheduleView" value="monthly"> Monatlich
-                    </label>
+                    <h2>Tilgungsplan</h2>
+                    <div style="display: flex;">
+                        <label>
+                            <input type="radio" name="scheduleView" value="yearly"> Jährlich
+                        </label>
+                        <label>
+                            <input type="radio" name="scheduleView" value="monthly" checked> Monatlich
+                            <!-- Default to monthly -->
+                        </label>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table>
@@ -97,6 +100,13 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Pagination Controls -->
+                <div class="pagination-controls">
+                    <button id="prevPage" disabled>&laquo; Zurück</button>
+                    <span id="pageInfo">Seite 1 von 1</span>
+                    <button id="nextPage" disabled>Weiter &raquo;</button>
+                </div>
+                <!-- End Pagination Controls -->
             </div>
         </div>
         <!-- End Right Column -->
