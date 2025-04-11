@@ -1,577 +1,120 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="de">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/sprucecss@2.3.3/css/spruce.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mortgage Calculator</title>
-    <style>
-        body {
-            padding: 1.5rem;
-            font-size: 0.95rem; /* Slightly smaller base font for potentially dense tables */
-        }
-
-        .configurations {
-            border: 1px solid var(--spruce-base-color-border);
-            border-radius: var(--spruce-border-radius-sm);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .configurations h4 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-
-        .summary.table tr td {
-            border: none;
-            padding: 4px 0; /* Slightly more vertical space */
-        }
-
-        .summary.table tr td:nth-child(1) {
-            padding-right: 1rem; /* Space between label and value */
-        }
-
-        .summary.table tr td:nth-child(2) {
-            text-align: end;
-            font-weight: 500; /* Make values slightly bolder */
-            color: #333;
-        }
-
-        .sep td {
-            padding-top: 10px !important;
-            border-top: 1px solid var(--spruce-base-color-border) !important;
-        }
-
-        .dpd { /* Debt Payoff Duration */
-            margin-top: 1rem;
-            font-weight: 500;
-            padding: 0.75rem;
-            background-color: var(--spruce-color-primary-lightest);
-            border: 1px solid var(--spruce-color-primary-lighter);
-            border-radius: var(--spruce-border-radius-sm);
-        }
-
-        .dpd b {
-            color: var(--spruce-color-primary-dark);
-        }
-
-        .dpd .error {
-            color: var(--spruce-color-danger-dark);
-            background-color: var(--spruce-color-danger-lightest);
-            border-color: var(--spruce-color-danger-lighter);
-        }
-
-        /* Ensure inputs take full width in their group */
-        .form-row--mixed .form-group {
-            flex-basis: 100%; /* Default for smaller screens */
-        }
-
-        @media (min-width: 768px) {
-            /* Adjust breakpoint as needed */
-            .form-row--mixed .form-group {
-                flex-basis: auto; /* Allow them to share space on larger screens */
-            }
-        }
-
-        /* Style for number inputs */
-        input[type=number], input[type=tel] {
-            text-align: right;
-        }
-
-        /* Hide spinners for number inputs (optional) */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type=number] {
-            -moz-appearance: textfield; /* Firefox */
-        }
-
-    </style>
+    <title>Immobilienkredit Rechner</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<div class="configurations">
-    <h4>Loan Configuration</h4>
-    <div class="form-row--mixed">
-        <div class="form-group">
-            <label class="form-label" for="purchase-price">Purchase price</label>
-            <input class="form-control" id="purchase-price" name="purchase-price" type="number" step="1000"
-                   value="300000"/>
+<div class="calculator-container">
+    <h1>Immobilienkredit Rechner</h1>
+
+    <!-- New Wrapper for the two main columns -->
+    <div class="main-layout">
+
+        <!-- Left Column: Inputs -->
+        <div class="input-section">
+            <h2>Eingaben</h2>
+            <div class="input-group">
+                <label for="purchasePrice">Kaufpreis (€):</label>
+                <input type="number" id="purchasePrice" value="400000" step="1000">
+            </div>
+            <div class="input-group">
+                <label for="downPayment">Eigenkapital (€):</label>
+                <input type="number" id="downPayment" value="100000" step="1000">
+            </div>
+            <div class="input-group">
+                <label for="repaymentAmount">Monatliche Rate (€):</label>
+                <input type="number" id="repaymentAmount" value="1500" step="50">
+            </div>
+            <div class="input-group">
+                <label for="agentFee">Maklerprovision (%):</label>
+                <input type="number" id="agentFee" value="3.57" step="0.01">
+            </div>
+            <div class="input-group">
+                <label for="realEstateTax">Grunderwerbsteuer (%):</label>
+                <input type="number" id="realEstateTax" value="6.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="notaryFee">Notar- & Grundbuchkosten (%):</label>
+                <input type="number" id="notaryFee" value="2.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="interestRate">Sollzinssatz (% p.a.):</label>
+                <input type="number" id="interestRate" value="3.61" step="0.01">
+            </div>
+            <div class="input-group">
+                <label for="unscheduledPayment">Jährliche Sondertilgung (€):</label>
+                <input type="number" id="unscheduledPayment" value="0" step="100">
+            </div>
+            <div class="input-group">
+                <label for="unscheduledPaymentYears">Sondertilgung für Jahre:</label>
+                <input type="number" id="unscheduledPaymentYears" value="0" step="1" placeholder="0 = unbegrenzt">
+            </div>
         </div>
-        <div class="form-group">
-            <label class="form-label" for="downpayment">Down payment</label>
-            <input class="form-control" id="downpayment" name="downpayment" type="number" step="1000" value="100000"/>
+        <!-- End Left Column -->
+
+        <!-- Right Column: Outputs -->
+        <div class="output-section">
+            <div class="summary-section">
+                <h2>Zusammenfassung</h2>
+                <p>Kaufpreis: <span id="summaryPurchasePrice"></span></p>
+                <p>Kaufnebenkosten: <span id="summaryTotalFees"></span></p>
+                <ul class="fee-details">
+                    <li>Maklerprovision: <span id="summaryAgentFee"></span></li>
+                    <li>Grunderwerbsteuer: <span id="summaryTaxFee"></span></li>
+                    <li>Notar- & Grundbuchkosten: <span id="summaryNotaryFee"></span></li>
+                </ul>
+                <p>Gesamtkosten (Preis + Nebenkosten): <span id="summaryTotalCost"></span></p>
+                <p>Eigenkapital: <span id="summaryDownPayment"></span></p>
+                <p><strong>Initialer Darlehensbetrag: <span id="summaryLoanAmount"></span></strong></p>
+                <p id="payoffSummary"></p>
+            </div>
+
+            <div class="schedule-section">
+                <div class="schedule-toggle">
+                    <h2>Tilgungsplan</h2>
+                    <div style="display: flex;">
+                        <label>
+                            <input type="radio" name="scheduleView" value="yearly"> Jährlich
+                        </label>
+                        <label>
+                            <input type="radio" name="scheduleView" value="monthly" checked> Monatlich
+                            <!-- Default to monthly -->
+                        </label>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th id="periodHeader">Monat</th>
+                            <th>Gesamtzahlung</th>
+                            <th>Zinsanteil</th>
+                            <th>Tilgungsanteil</th>
+                            <th>Restschuld</th>
+                        </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination Controls -->
+                <div class="pagination-controls">
+                    <button id="prevPage" disabled>&laquo; Zurück</button>
+                    <span id="pageInfo">Seite 1 von 1</span>
+                    <button id="nextPage" disabled>Weiter &raquo;</button>
+                </div>
+                <!-- End Pagination Controls -->
+            </div>
         </div>
-        <div class="form-group">
-            <label class="form-label" for="repayment">Monthly repayment</label>
-            <input class="form-control" id="repayment" name="repayment" type="number" step="50" value="1000"/>
-        </div>
-    </div>
-    <div class="form-row--mixed">
-        <div class="form-group">
-            <label class="form-label" for="real-estate-agent-fee">Real estate agent fee (%)</label>
-            <input class="form-control" id="real-estate-agent-fee" name="real-estate-agent-fee" type="number"
-                   step="0.01" value="3.57"/>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="real-estate-tax">Real estate transfer tax (%)</label>
-            <!-- Renamed for clarity -->
-            <input class="form-control" id="real-estate-tax" name="real-estate-tax" type="number" step="0.1" value="6"/>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="notary-fee">Notary & Land Registry fee (%)</label>
-            <!-- Renamed for clarity -->
-            <input class="form-control" id="notary-fee" name="notary-fee" type="number" step="0.1" value="2"/>
-        </div>
-    </div>
-    <div class="form-row--mixed">
-        <div class="form-group">
-            <label class="form-label" for="interest-rate">Interest rate (%)</label>
-            <input class="form-control" id="interest-rate" name="interest-rate" type="number" step="0.01" value="3.1"/>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="unscheduled-yearly-payment">Annual unscheduled payment</label>
-            <!-- Renamed for clarity -->
-            <input class="form-control" id="unscheduled-yearly-payment" name="unscheduled-yearly-payment" type="number"
-                   step="100" value="0"/>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="breakdown-by">Breakdown View</label> <!-- Simpler label -->
-            <label class="form-switch form-switch--lg form-switch--block">
-                <span class="form-label form-switch__label">Yearly</span>
-                <input class="form-switch__control" type="checkbox" value="true" id="breakdown-by"/>
-                <span class="form-label form-switch__label">Monthly</span>
-            </label>
-            <!-- Removed redundant outer label -->
-        </div>
-    </div>
-</div>
+        <!-- End Right Column -->
 
-<div class="configurations">
-    <h4>Summary</h4>
-    <table class="summary table">
-        <tbody> <!-- Added tbody for semantics -->
-        <tr>
-            <td>Purchase price</td>
-            <td class="summary-pp"></td>
-        </tr>
-        <tr>
-            <td>Total purchase fees</td>
-            <td class="summary-tpf"></td>
-        </tr>
-        <tr>
-            <td style="padding-left: 1.5em;">Real estate agent fee</td> <!-- Indentation via style -->
-            <td class="summary-raf"></td>
-        </tr>
-        <tr>
-            <td style="padding-left: 1.5em;">Real estate transfer tax</td>
-            <td class="summary-rt"></td>
-        </tr>
-        <tr>
-            <td style="padding-left: 1.5em;">Notary & Land Registry fee</td>
-            <td class="summary-nf"></td>
-        </tr>
-        <tr class="sep">
-            <td>Total cost (Price + Fees)</td>
-            <td class="summary-tpp"></td>
-        </tr>
-        <tr>
-            <td>Down payment</td>
-            <td class="summary-dp"></td>
-        </tr>
-        <tr>
-            <td>Initial Loan Amount</td>
-            <td class="summary-la"></td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="dpd">
-        <!-- Payoff summary will be inserted here by JS -->
-        Please fill in all configuration values above.
-    </div>
-</div>
+    </div> <!-- End Main Layout Wrapper -->
 
-<table class="table table--striped table--sm" id="breakdown">
-    <thead>
-    <tr>
-        <th>Period</th>
-        <th>Total Payment</th> <!-- Clarified label -->
-        <th>Interest Paid</th> <!-- Clarified label -->
-        <th>Principal Paid</th> <!-- Clarified label -->
-        <th>Remaining Balance</th> <!-- Clarified label -->
-    </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+</div> <!-- End Calculator Container -->
 
-<script>
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const summaryElement = document.querySelector(".dpd"); // Cache element
-    const breakdownTableBody = document.querySelector("#breakdown tbody"); // Cache element
-
-    // --- Helper Functions ---
-
-    function newCell(value) {
-        const cell = document.createElement("td");
-        cell.textContent = value; // Use textContent for performance and security
-        return cell;
-    }
-
-    function addRow(tableBody, ...values) {
-        const row = document.createElement("tr");
-        for (const v of values) {
-            row.appendChild(newCell(v));
-        }
-        tableBody.appendChild(row);
-    }
-
-    function getPeriodLabel(date) {
-        // Returns "Mon YYYY" format
-        return `${months[date.getMonth()]} ${date.getFullYear()}`;
-    }
-
-    function formatCurrency(value) {
-        // Formats number as currency (e.g., Euro)
-        // Adjust 'de-DE' and 'EUR' based on your locale/currency needs
-        return value.toLocaleString('de-DE', {style: 'currency', currency: 'EUR'});
-    }
-
-    function getValue(id) {
-        // Gets numeric value from input, defaults to 0 if invalid/empty
-        const input = document.querySelector(`#${id}`);
-        if (!input) return 0; // Handle missing elements gracefully
-        const value = parseFloat(input.value);
-        return isNaN(value) ? 0 : value;
-    }
-
-    function getConfigFromInputs() {
-        // Reads all configuration values from the form
-        return {
-            purchasePrice: getValue("purchase-price"),
-            downPayment: getValue("downpayment"),
-            repaymentPerMonth: getValue("repayment"),
-            realEstateAgentCommision: getValue("real-estate-agent-fee"),
-            realEstateTax: getValue("real-estate-tax"),
-            notaryCommision: getValue("notary-fee"),
-            interestRate: getValue("interest-rate"),
-            unscheduledYearlyPayment: getValue("unscheduled-yearly-payment"),
-            breakdownMonthly: document.querySelector("#breakdown-by").checked // Renamed for clarity
-        };
-    }
-
-    function setSummaryText(selector, value, format = true) {
-        const element = document.querySelector(selector);
-        if (element) {
-            element.textContent = format ? formatCurrency(value) : value;
-        }
-    }
-
-    // --- Calculation Functions ---
-
-    function yearlyBreakdown(config, tableBody, initialLoanAmount) {
-        let currentLoanAmount = initialLoanAmount;
-        let date = new Date();
-        date.setMonth(0); // Start at January for yearly summary
-        date.setDate(1);
-
-        let years = 0;
-        let totalInterestPaid = 0;
-        let totalPrincipalPaid = 0;
-        const annualRepayment = config.repaymentPerMonth * 12;
-
-        tableBody.innerHTML = ''; // Clear previous results
-
-        while (currentLoanAmount > 0) {
-            // Switch to monthly reporting if remaining loan is less than ~1 year's payments
-            // or if the loan is very small to avoid large final year jump
-            if (currentLoanAmount < annualRepayment * 1.1) {
-                monthlyBreakdown(config, tableBody, currentLoanAmount, years * 12, date); // Pass current date
-                return; // Exit yearly calculation
-            }
-
-            // Approximate yearly interest (calculated on balance at start of year)
-            // Note: This is less accurate than monthly compounding.
-            const interestForYear = Math.round((currentLoanAmount * config.interestRate) / 100);
-
-            // Check if repayment covers interest
-            if (annualRepayment <= interestForYear && config.unscheduledYearlyPayment <= 0) {
-                summaryElement.innerHTML = `<span class="error">Yearly repayment (${formatCurrency(annualRepayment)}) does not cover the approximate yearly interest (${formatCurrency(interestForYear)}). Loan will not be paid off. Increase monthly repayment.</span>`;
-                return; // Stop calculation
-            }
-
-            let principalPaidRegular = annualRepayment - interestForYear;
-            let totalPaymentForYear = annualRepayment; // Start with regular payments
-
-            // Ensure principal doesn't make loan negative before unscheduled payment
-            principalPaidRegular = Math.min(principalPaidRegular, currentLoanAmount);
-            currentLoanAmount -= principalPaidRegular;
-            totalPrincipalPaid += principalPaidRegular;
-            totalInterestPaid += interestForYear;
-
-            // Apply unscheduled payment if any
-            let actualUnscheduledPayment = 0;
-            if (config.unscheduledYearlyPayment > 0 && currentLoanAmount > 0) {
-                actualUnscheduledPayment = Math.min(config.unscheduledYearlyPayment, currentLoanAmount);
-                currentLoanAmount -= actualUnscheduledPayment;
-                totalPrincipalPaid += actualUnscheduledPayment;
-                totalPaymentForYear += actualUnscheduledPayment; // Add to total payment for the year
-            }
-
-            // Add row for the completed year
-            addRow(
-                tableBody,
-                date.getFullYear(), // Period is just the year
-                formatCurrency(totalPaymentForYear), // Total payment including unscheduled
-                formatCurrency(interestForYear),
-                formatCurrency(principalPaidRegular + actualUnscheduledPayment), // Total principal paid this year
-                formatCurrency(currentLoanAmount)
-            );
-
-            years += 1;
-            date.setFullYear(date.getFullYear() + 1); // Move to next year
-
-            // Safety break to prevent infinite loops in edge cases
-            if (years > 100) {
-                summaryElement.innerHTML = `<span class="error">Calculation stopped after 100 years. Please check input values.</span>`;
-                break;
-            }
-        }
-
-        // Update summary message AFTER the loop
-        if (currentLoanAmount <= 0) {
-            summaryElement.innerHTML = `Entire debt likely paid off in approximately <b>${years} years</b>. Total interest paid: <b>${formatCurrency(totalInterestPaid)}</b>.`;
-        }
-    }
-
-    function monthlyBreakdown(config, tableBody, initialLoanAmount, startMonthOffset = 0, startDate = null) {
-        let currentLoanAmount = initialLoanAmount;
-        let date = startDate ? new Date(startDate.getTime()) : new Date(); // Use provided start date or now
-        if (!startDate) {
-            date.setDate(1); // Start calculation from the 1st of the *next* month
-            date.setMonth(date.getMonth() + 1);
-        }
-        // Apply initial offset if provided (e.g., from yearly calculation)
-        // date.setMonth(date.getMonth() + startMonthOffset); // This was causing issues if startDate was passed
-
-        let monthsCount = 0; // Count months *within this function*
-        let totalInterestPaid = 0;
-        let totalPrincipalPaid = 0;
-
-        // Clear table only if starting from scratch (offset is 0)
-        if (startMonthOffset === 0) {
-            tableBody.innerHTML = '';
-        }
-
-        while (currentLoanAmount > 0) {
-            const monthlyInterestRate = config.interestRate / 1200; // e.g., 3.1% -> 0.031 / 12
-            const interestForMonth = Math.round(currentLoanAmount * monthlyInterestRate); // Round to nearest cent conceptually
-
-            // Check if repayment covers interest
-            if (config.repaymentPerMonth <= interestForMonth) {
-                summaryElement.innerHTML = `<span class="error">Monthly repayment (${formatCurrency(config.repaymentPerMonth)}) is less than or equal to the monthly interest (${formatCurrency(interestForMonth)}). Loan cannot be paid off. Increase repayment.</span>`;
-                return; // Stop calculation
-            }
-
-            let principalPaid = config.repaymentPerMonth - interestForMonth;
-            let paymentThisMonth = config.repaymentPerMonth;
-
-            // Handle final payment
-            if (currentLoanAmount < config.repaymentPerMonth) {
-                principalPaid = currentLoanAmount; // Pay off remaining balance
-                paymentThisMonth = currentLoanAmount + interestForMonth; // Final payment is remaining + interest
-            }
-
-            currentLoanAmount -= principalPaid;
-            totalInterestPaid += interestForMonth;
-            totalPrincipalPaid += principalPaid;
-
-            // Apply unscheduled payment at the END of each year (e.g., after December payment)
-            let actualUnscheduledPayment = 0;
-            if (config.unscheduledYearlyPayment > 0 && date.getMonth() === 11 && currentLoanAmount > 0) { // Month is 0-indexed, so 11 is December
-                actualUnscheduledPayment = Math.min(config.unscheduledYearlyPayment, currentLoanAmount);
-                currentLoanAmount -= actualUnscheduledPayment;
-                totalPrincipalPaid += actualUnscheduledPayment;
-                // Note: We add a separate row or indicate this payment if needed,
-                // but for simplicity here, we just reduce the balance.
-                // The 'Total Payment' column reflects the regular monthly payment.
-            }
-
-            // Add row for the month
-            addRow(
-                tableBody,
-                getPeriodLabel(date),
-                formatCurrency(paymentThisMonth), // Show actual payment made
-                formatCurrency(interestForMonth),
-                formatCurrency(principalPaid),
-                formatCurrency(Math.max(0, currentLoanAmount)) // Ensure remaining doesn't show negative due to rounding quirks
-            );
-
-            // Add extra row for unscheduled payment if applied
-            if (actualUnscheduledPayment > 0) {
-                addRow(
-                    tableBody,
-                    `${getPeriodLabel(date)} (Unscheduled)`,
-                    formatCurrency(actualUnscheduledPayment),
-                    formatCurrency(0), // No interest component
-                    formatCurrency(actualUnscheduledPayment),
-                    formatCurrency(Math.max(0, currentLoanAmount))
-                );
-            }
-
-
-            monthsCount++;
-            date.setMonth(date.getMonth() + 1); // Move to next month
-
-            // Safety break
-            if (monthsCount > 1200) { // 100 years
-                summaryElement.innerHTML = `<span class="error">Calculation stopped after 100 years (1200 months). Please check input values.</span>`;
-                break;
-            }
-        }
-
-        // Update summary message AFTER the loop
-        if (currentLoanAmount <= 0) {
-            const totalMonths = startMonthOffset + monthsCount;
-            const years = Math.floor(totalMonths / 12);
-            const remainingMonths = totalMonths % 12;
-            summaryElement.innerHTML = `Entire debt paid off in <b>${years} years and ${remainingMonths} months</b>. Total interest paid: <b>${formatCurrency(totalInterestPaid)}</b>.`;
-        }
-    }
-
-    function recalculate() {
-        const config = getConfigFromInputs();
-
-        // Basic validation for essential positive values
-        if (config.purchasePrice <= 0 || config.repaymentPerMonth <= 0 || config.interestRate < 0) {
-            summaryElement.innerHTML = `<span class="error">Please enter positive values for Purchase Price, Monthly Repayment, and a non-negative Interest Rate.</span>`;
-            breakdownTableBody.innerHTML = ''; // Clear table
-            // Clear summary values too
-            setSummaryText(".summary-pp", 0);
-            setSummaryText(".summary-tpf", 0);
-            setSummaryText(".summary-raf", 0);
-            setSummaryText(".summary-rt", 0);
-            setSummaryText(".summary-nf", 0);
-            setSummaryText(".summary-tpp", 0);
-            setSummaryText(".summary-dp", 0);
-            setSummaryText(".summary-la", 0);
-            return;
-        }
-        if (config.downPayment < 0) {
-            summaryElement.innerHTML = `<span class="error">Down payment cannot be negative.</span>`;
-            breakdownTableBody.innerHTML = ''; // Clear table
-            return;
-        }
-
-
-        // Calculate fees and costs
-        const realEstateAgentFee = (config.purchasePrice * config.realEstateAgentCommision) / 100;
-        const realEstateTaxAmount = (config.purchasePrice * config.realEstateTax) / 100;
-        const notaryFee = (config.purchasePrice * config.notaryCommision) / 100;
-        const additionalCost = realEstateAgentFee + realEstateTaxAmount + notaryFee;
-        const totalPurchasePrice = config.purchasePrice + additionalCost;
-        let loanAmount = totalPurchasePrice - config.downPayment;
-
-        if (loanAmount <= 0) {
-            summaryElement.innerHTML = `Down payment (<b>${formatCurrency(config.downPayment)}</b>) covers the total cost (<b>${formatCurrency(totalPurchasePrice)}</b>). No loan needed.`;
-            // Update summary fields even if no loan needed
-            setSummaryText(".summary-pp", config.purchasePrice);
-            setSummaryText(".summary-tpf", additionalCost);
-            setSummaryText(".summary-raf", realEstateAgentFee);
-            setSummaryText(".summary-rt", realEstateTaxAmount);
-            setSummaryText(".summary-nf", notaryFee);
-            setSummaryText(".summary-tpp", totalPurchasePrice);
-            setSummaryText(".summary-dp", config.downPayment);
-            setSummaryText(".summary-la", 0); // Loan amount is 0 or less
-            breakdownTableBody.innerHTML = ''; // Clear table
-            return;
-        }
-
-
-        // Update summary display
-        setSummaryText(".summary-pp", config.purchasePrice);
-        setSummaryText(".summary-tpf", additionalCost);
-        setSummaryText(".summary-raf", realEstateAgentFee);
-        setSummaryText(".summary-rt", realEstateTaxAmount);
-        setSummaryText(".summary-nf", notaryFee);
-        setSummaryText(".summary-tpp", totalPurchasePrice);
-        setSummaryText(".summary-dp", config.downPayment);
-        setSummaryText(".summary-la", loanAmount);
-
-        // Clear previous summary message before calculation
-        summaryElement.innerHTML = 'Calculating...';
-
-        // Run the appropriate breakdown calculation
-        if (config.breakdownMonthly) {
-            monthlyBreakdown(config, breakdownTableBody, loanAmount);
-        } else {
-            yearlyBreakdown(config, breakdownTableBody, loanAmount);
-        }
-    }
-
-    // --- Initialization and Event Listeners ---
-
-    function initialize() {
-        try {
-            // Attempt to load saved config from localStorage
-            const savedConfigRaw = localStorage.getItem("config");
-            let config;
-            if (savedConfigRaw) {
-                config = JSON.parse(savedConfigRaw);
-                // Set input values from loaded config
-                document.querySelector("#purchase-price").value = config.purchasePrice || 0;
-                document.querySelector("#downpayment").value = config.downPayment || 0;
-                document.querySelector("#repayment").value = config.repaymentPerMonth || 0;
-                document.querySelector("#real-estate-agent-fee").value = config.realEstateAgentCommision || 0;
-                document.querySelector("#real-estate-tax").value = config.realEstateTax || 0;
-                document.querySelector("#notary-fee").value = config.notaryCommision || 0;
-                document.querySelector("#interest-rate").value = config.interestRate || 0;
-                document.querySelector("#unscheduled-yearly-payment").value = config.unscheduledYearlyPayment || 0;
-                // Handle potential missing 'breakdownMonthly' in older saved configs
-                document.querySelector("#breakdown-by").checked = config.breakdownMonthly === true;
-            } else {
-                // If no saved config, get defaults from HTML inputs
-                config = getConfigFromInputs();
-            }
-
-            // Perform initial calculation
-            recalculate();
-
-            // Add event listeners to all inputs in the configurations section
-            document.querySelectorAll(".configurations input").forEach((elem) => {
-                elem.addEventListener('change', () => { // Use 'change' or 'input'
-                    const currentConfig = getConfigFromInputs();
-                    recalculate();
-                    // Save the latest config to localStorage
-                    localStorage.setItem("config", JSON.stringify(currentConfig));
-                });
-                // Optional: Recalculate on 'input' for more responsiveness, but can be slow
-                // elem.addEventListener('input', () => {
-                //    const currentConfig = getConfigFromInputs();
-                //    recalculate();
-                //    // Maybe debounce saving to localStorage on 'input'
-                // });
-            });
-
-        } catch (e) {
-            console.error("Error during initialization or calculation:", e);
-            summaryElement.innerHTML = `<span class="error">An error occurred. Please check console or refresh. Error: ${e.message}</span>`;
-            // Fallback to calculating with default values if loading failed badly
-            if (!document.querySelector("#purchase-price").value) { // Check if inputs were populated at all
-                recalculate(); // Try calculating with HTML defaults
-            }
-        }
-    }
-
-    // Run initialization when the DOM is ready
-    document.addEventListener('DOMContentLoaded', initialize);
-
-</script>
-
+<script src="script.js"></script>
 </body>
-
 </html>
